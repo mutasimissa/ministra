@@ -1,0 +1,42 @@
+services:
+  ministra:
+    image: mutasimissa/ministra:5.6.10
+    restart: always
+    tty: true
+    volumes:
+      - ./storage:/data/storage
+      - ./ministra.zip:/opt/ministra.zip
+      - ./known_hosts:/root/.ssh/known_hosts
+      - ./custom.ini:/home/ministra/ministra/www/stalker_portal/server/custom.ini
+      - ./pixelna:/home/ministra/ministra/www/pixelna
+    depends_on:
+      - mysql
+      - memcache
+    environment:
+      - "MINISTRA_MYSQL_HOST=mysql"
+      - "MINISTRA_MYSQL_PORT=3306"
+      - "MINISTRA_MYSQL_USER=ministra"
+      - "MINISTRA_MYSQL_PASS=ministra_user_password"
+      - "MINISTRA_MYSQL_DBNAME=ministra"
+      - "MINISTRA_MEMCACHE_HOST=memcache"
+    ports:
+      - 8080:80
+    restart: always
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./mysql.conf.d:/etc/mysql/mysql.conf.d
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=ministra
+      - MYSQL_USER=ministra
+      - MYSQL_PASSWORD=ministra_user_password
+    restart: always
+  memcache:
+    image: memcached:latest
+    restart: always
+volumes:
+  mysql_data:
+  storage:
