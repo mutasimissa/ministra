@@ -15,9 +15,10 @@ wait_for_mysql() {
       );
       exit(0);
     } catch (Exception \$e) {
+      fwrite(STDERR, \$e->getMessage() . \"\n\");
       exit(1);
     }
-  " 2>/dev/null; do
+  "; do
     echo "MySQL not ready yet, retrying in 3s..."
     sleep 3
   done
