@@ -82,6 +82,17 @@ set_admin_credentials() {
   "
 }
 
+install_npm_shim() {
+  echo '#!/bin/sh
+if [ "$1" = "--version" ] || [ "$1" = "-v" ]; then
+  echo "2.15.11"
+else
+  echo "npm shim - version check only" >&2
+fi' > /usr/local/bin/npm
+  chmod +x /usr/local/bin/npm
+}
+
+install_npm_shim
 patch_custom_ini
 wait_for_mysql
 run_phing
