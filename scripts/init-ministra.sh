@@ -66,7 +66,6 @@ set_admin_credentials() {
   "
 }
 
-install_node_npm
 patch_custom_ini
 wait_for_mysql
 run_phing
