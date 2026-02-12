@@ -79,13 +79,7 @@ cd /path/to/ministra
 
 Replace `/path/to/ministra` with the actual path where you saved this project.
 
-### Step 5: Make the Init Script Executable (Linux/Mac only)
-
-```bash
-chmod +x scripts/01-init.sh scripts/init-ministra.sh
-```
-
-### Step 6: Start All Services
+### Step 5: Start All Services
 
 ```bash
 docker compose up -d
@@ -97,7 +91,7 @@ docker compose up -d
 - Creates and starts three containers: `ministra`, `mysql`, and `memcache`
 - The `-d` flag runs everything in the background
 
-### Step 7: Wait for MySQL to Initialize
+### Step 6: Wait for MySQL to Initialize
 
 The first startup takes about 30-60 seconds while MySQL sets up the database.
 You can check progress with:
@@ -108,7 +102,7 @@ docker compose logs -f mysql
 
 Press `Ctrl+C` to stop watching logs.
 
-### Step 8: Access Ministra
+### Step 7: Access Ministra
 
 Open your web browser and go to:
 
