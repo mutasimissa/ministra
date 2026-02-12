@@ -36,16 +36,6 @@ run_phing() {
   fi
 }
 
-install_npm() {
-  if ! npm --version 2>/dev/null | grep -q "2.15.11"; then
-    echo "Installing npm 2.15.11..."
-    npm install -g npm@2.15.11
-    echo "npm 2.15.11 installed."
-  else
-    echo "npm 2.15.11 already installed, skipping."
-  fi
-}
-
 patch_custom_ini() {
   local ini="/home/ministra/ministra/www/stalker_portal/server/custom.ini"
   if [ -f "$ini" ]; then
@@ -76,7 +66,7 @@ set_admin_credentials() {
   "
 }
 
-install_npm
+install_node_npm
 patch_custom_ini
 wait_for_mysql
 run_phing
