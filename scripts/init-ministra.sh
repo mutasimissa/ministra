@@ -60,9 +60,26 @@ patch_custom_ini() {
   fi
 }
 
+set_admin_credentials() {
+  echo "Setting admin credentials..."
+  php -r "
+    \$pdo = new PDO(
+      'mysql:host=${MINISTRA_MYSQL_HOST};port=${MINISTRA_MYSQL_PORT};dbname=${MINISTRA_MYSQL_DBNAME}',
+      '${MINISTRA_MYSQL_USER}',
+      '${MINISTRA_MYSQL_PASS}'
+    );
+    \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    \$hash = md5('${MINISTRA_ADMIN_PASSWORD}');
+    \$stmt = \$pdo->prepare('UPDATE administrators SET login = ?, password = ? WHERE login = \"admin\" OR id = 1');
+    \$stmt->execute(['${MINISTRA_ADMIN_USER}', \$hash]);
+    echo \"Admin credentials updated.\n\";
+  "
+}
+
 install_npm
 patch_custom_ini
 wait_for_mysql
 run_phing
+set_admin_credentials
 
 exec /docker-entrypoint.sh /usr/sbin/apache2ctl -D FOREGROUND
