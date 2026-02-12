@@ -30,6 +30,7 @@ run_phing() {
     echo "Running phing deploy..."
     cd "$DEPLOY_DIR"
     phing
+    set_admin_credentials
     touch "$MARKER_FILE"
     echo "Phing deploy complete."
   else
@@ -75,6 +76,5 @@ set_admin_credentials() {
 patch_custom_ini
 wait_for_mysql
 run_phing
-set_admin_credentials
 
 exec /docker-entrypoint.sh /usr/sbin/apache2ctl -D FOREGROUND
