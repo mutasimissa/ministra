@@ -46,7 +46,22 @@ install_npm() {
   fi
 }
 
+patch_custom_ini() {
+  local ini="/home/ministra/ministra/www/stalker_portal/server/custom.ini"
+  if [ -f "$ini" ]; then
+    echo "Patching custom.ini with environment credentials..."
+    sed -i "s|^mysql_host = .*|mysql_host = ${MINISTRA_MYSQL_HOST}|" "$ini"
+    sed -i "s|^mysql_port = .*|mysql_port = ${MINISTRA_MYSQL_PORT}|" "$ini"
+    sed -i "s|^mysql_user = .*|mysql_user = ${MINISTRA_MYSQL_USER}|" "$ini"
+    sed -i "s|^mysql_pass = .*|mysql_pass = ${MINISTRA_MYSQL_PASS}|" "$ini"
+    sed -i "s|^db_name = .*|db_name = ${MINISTRA_MYSQL_DBNAME}|" "$ini"
+    sed -i "s|^memcache_host = .*|memcache_host = ${MINISTRA_MEMCACHE_HOST}|" "$ini"
+    echo "custom.ini patched."
+  fi
+}
+
 install_npm
+patch_custom_ini
 wait_for_mysql
 run_phing
 

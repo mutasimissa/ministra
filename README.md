@@ -41,61 +41,37 @@ You must place the original **Ministra 5.6.10 zip file** in this folder:
 
 **Without this file, Ministra will not work!**
 
-### Step 2: Configure MySQL Credentials (Important!)
+### Step 2: Configure Credentials
 
-Before starting, edit `compose.yml` to set your own secure passwords:
+All credentials are managed through a single `.env` file. **You never need to
+edit `compose.yml` or `custom.ini` directly.**
 
-1. Open `compose.yml` in any text editor
-2. Find the `mysql` service section and change these values:
-   ```yaml
-   environment:
-      - MYSQL_ROOT_PASSWORD=your_secure_root_password
-      - MYSQL_DATABASE=ministra
-      - MYSQL_USER=ministra
-      - MYSQL_PASSWORD=your_secure_user_password
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
    ```
+2. Open `.env` in any text editor and set your own secure passwords:
+   ```env
+   MYSQL_ROOT_PASSWORD=your_secure_root_password
+   MYSQL_DATABASE=ministra
+   MYSQL_USER=ministra
+   MYSQL_PASSWORD=your_secure_user_password
 
-3. **Important:** Update the `ministra` service to match the same credentials:
-   ```yaml
-   environment:
-      - "MINISTRA_MYSQL_USER=ministra"
-      - "MINISTRA_MYSQL_PASS=your_secure_user_password"
-      - "MINISTRA_MYSQL_DBNAME=ministra"
-   ```
-
-4. Save the file
-
-**Note:** `MYSQL_PASSWORD` and `MINISTRA_MYSQL_PASS` must be identical for
-Ministra to connect to the database.
-
-### Step 3: Update MySQL Password in `custom.ini`
-
-The `custom.ini` file also contains the MySQL credentials that Ministra uses
-internally. Update it to match the password you set in `compose.yml`:
-
-1. Open `custom.ini` in any text editor
-2. Find the `[database]` section and change `mysql_pass` to match your
-   `MYSQL_PASSWORD` from Step 2:
-   ```ini
-   [database]
-   mysql_host = mysql
-   mysql_port = 3306
-   mysql_user = ministra
-   mysql_pass = your_secure_user_password
-   db_name = ministra
+   MINISTRA_PORT=8080
    ```
 3. Save the file
 
-**Note:** The `mysql_pass` value here must be identical to `MYSQL_PASSWORD` and
-`MINISTRA_MYSQL_PASS` in `compose.yml`.
+**Note:** The `.env` file is gitignored and will not be committed to version
+control. The `custom.ini` database credentials are automatically patched from
+these values at container startup.
 
-### Step 4: Open Terminal
+### Step 3: Open Terminal
 
 - **Windows**: Open PowerShell or Command Prompt
 - **Mac**: Open Terminal (Applications → Utilities → Terminal)
 - **Linux**: Open your terminal application
 
-### Step 5: Navigate to the Project Folder
+### Step 4: Navigate to the Project Folder
 
 ```bash
 cd /path/to/ministra
@@ -103,13 +79,13 @@ cd /path/to/ministra
 
 Replace `/path/to/ministra` with the actual path where you saved this project.
 
-### Step 6: Make the Init Script Executable (Linux/Mac only)
+### Step 5: Make the Init Script Executable (Linux/Mac only)
 
 ```bash
-chmod +x scripts/01-init.sh
+chmod +x scripts/01-init.sh scripts/init-ministra.sh
 ```
 
-### Step 7: Start All Services
+### Step 6: Start All Services
 
 ```bash
 docker compose up -d
@@ -121,7 +97,7 @@ docker compose up -d
 - Creates and starts three containers: `ministra`, `mysql`, and `memcache`
 - The `-d` flag runs everything in the background
 
-### Step 8: Wait for MySQL to Initialize
+### Step 7: Wait for MySQL to Initialize
 
 The first startup takes about 30-60 seconds while MySQL sets up the database.
 You can check progress with:
@@ -132,7 +108,7 @@ docker compose logs -f mysql
 
 Press `Ctrl+C` to stop watching logs.
 
-### Step 9: Access Ministra
+### Step 8: Access Ministra
 
 Open your web browser and go to:
 
@@ -184,10 +160,10 @@ docker compose up -d
 
 ## 3. Recreating Containers After Making Edits
 
-If you edit configuration files (like `compose.yml`, `custom.ini`, etc.), you
-need to recreate the containers:
+If you edit configuration files (like `.env`, `compose.yml`, `custom.ini`,
+etc.), you need to recreate the containers:
 
-### If You Changed `compose.yml`:
+### If You Changed `.env` or `compose.yml`:
 
 ```bash
 docker compose up -d
@@ -392,24 +368,25 @@ docker compose up -d
 
 ## Configuration
 
-### MySQL Credentials
+### Credentials
 
-Defined in `compose.yml`:
-
-- **Root Password**: `root_password`
-- **Database**: `ministra`
-- **User**: `ministra`
-- **Password**: `ministra_user_password`
+All credentials are defined in `.env` (copied from `.env.example`). You never
+need to edit `compose.yml` or `custom.ini` directly — the init script patches
+`custom.ini` automatically from the environment variables.
 
 ### Ports
 
-- **Ministra Web Interface**: `http://localhost:8080`
+- **Ministra Web Interface**: `http://localhost:<MINISTRA_PORT>` (default
+  `8080`)
 - **MySQL**: `3306` (internal only)
 
 ### Important Files
 
-- `compose.yml` - Main Docker configuration
-- `custom.ini` - Ministra settings
+- `.env.example` - Template for environment variables (copy to `.env`)
+- `.env` - Your local credentials (gitignored)
+- `compose.yml` - Docker Compose configuration
+- `custom.ini` - Ministra settings (DB credentials patched automatically)
+- `scripts/` - Init scripts (MySQL + Ministra)
 - `mysql.conf.d/` - MySQL configuration
 - `mysql_data/` - Database files (auto-created)
 - `storage/` - Ministra storage files
