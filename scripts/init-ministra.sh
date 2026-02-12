@@ -40,12 +40,17 @@ patch_custom_ini() {
   local ini="/home/ministra/ministra/www/stalker_portal/server/custom.ini"
   if [ -f "$ini" ]; then
     echo "Patching custom.ini with environment credentials..."
-    sed -i "s|^mysql_host = .*|mysql_host = ${MINISTRA_MYSQL_HOST}|" "$ini"
-    sed -i "s|^mysql_port = .*|mysql_port = ${MINISTRA_MYSQL_PORT}|" "$ini"
-    sed -i "s|^mysql_user = .*|mysql_user = ${MINISTRA_MYSQL_USER}|" "$ini"
-    sed -i "s|^mysql_pass = .*|mysql_pass = ${MINISTRA_MYSQL_PASS}|" "$ini"
-    sed -i "s|^db_name = .*|db_name = ${MINISTRA_MYSQL_DBNAME}|" "$ini"
-    sed -i "s|^memcache_host = .*|memcache_host = ${MINISTRA_MEMCACHE_HOST}|" "$ini"
+    local tmp="/tmp/custom.ini.tmp"
+    sed \
+      -e "s|^mysql_host = .*|mysql_host = ${MINISTRA_MYSQL_HOST}|" \
+      -e "s|^mysql_port = .*|mysql_port = ${MINISTRA_MYSQL_PORT}|" \
+      -e "s|^mysql_user = .*|mysql_user = ${MINISTRA_MYSQL_USER}|" \
+      -e "s|^mysql_pass = .*|mysql_pass = ${MINISTRA_MYSQL_PASS}|" \
+      -e "s|^db_name = .*|db_name = ${MINISTRA_MYSQL_DBNAME}|" \
+      -e "s|^memcache_host = .*|memcache_host = ${MINISTRA_MEMCACHE_HOST}|" \
+      "$ini" > "$tmp"
+    cp "$tmp" "$ini"
+    rm "$tmp"
     echo "custom.ini patched."
   fi
 }
