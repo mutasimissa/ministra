@@ -2,3 +2,4 @@ ministra.zip
 mysql_data/*
 storage/*
 backups/*
+!.gitkeep
