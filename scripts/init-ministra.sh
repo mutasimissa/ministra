@@ -92,7 +92,15 @@ fi' > /usr/local/bin/npm
   chmod +x /usr/local/bin/npm
 }
 
+create_redirects() {
+  local www="/home/ministra/ministra/www"
+  echo '<?php header("Location: stalker_portal/c/"); exit;' > "$www/index.php"
+  mkdir -p "$www/admin"
+  echo '<?php header("Location: /stalker_portal/server/adm/"); exit;' > "$www/admin/index.php"
+}
+
 install_npm_shim
+create_redirects
 patch_custom_ini
 wait_for_mysql
 run_phing
