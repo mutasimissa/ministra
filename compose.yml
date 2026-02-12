@@ -21,7 +21,6 @@ services:
       - "MINISTRA_MEMCACHE_HOST=memcache"
     ports:
       - 8080:80
-    restart: always
   mysql:
     image: mysql:5.7
     volumes:
