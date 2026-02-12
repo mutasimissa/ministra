@@ -1,6 +1,7 @@
 # Ministra Docker Setup
 
-This guide explains how to run Ministra using Docker. No prior Docker experience required.
+This guide explains how to run Ministra using Docker. No prior Docker experience
+required.
 
 ---
 
@@ -9,7 +10,8 @@ This guide explains how to run Ministra using Docker. No prior Docker experience
 Before you begin, make sure you have Docker installed on your system:
 
 1. **Install Docker Desktop** (includes Docker Compose):
-   - **Windows/Mac**: Download from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+   - **Windows/Mac**: Download from
+     [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
    - **Linux**: Run these commands:
      ```bash
      curl -fsSL https://get.docker.com -o get-docker.sh
@@ -47,59 +49,93 @@ Before starting, edit `compose.yml` to set your own secure passwords:
 2. Find the `mysql` service section and change these values:
    ```yaml
    environment:
-     - MYSQL_ROOT_PASSWORD=your_secure_root_password
-     - MYSQL_DATABASE=ministra
-     - MYSQL_USER=ministra
-     - MYSQL_PASSWORD=your_secure_user_password
+      - MYSQL_ROOT_PASSWORD=your_secure_root_password
+      - MYSQL_DATABASE=ministra
+      - MYSQL_USER=ministra
+      - MYSQL_PASSWORD=your_secure_user_password
    ```
 
 3. **Important:** Update the `ministra` service to match the same credentials:
    ```yaml
    environment:
-     - "MINISTRA_MYSQL_USER=ministra"
-     - "MINISTRA_MYSQL_PASS=your_secure_user_password"
-     - "MINISTRA_MYSQL_DBNAME=ministra"
+      - "MINISTRA_MYSQL_USER=ministra"
+      - "MINISTRA_MYSQL_PASS=your_secure_user_password"
+      - "MINISTRA_MYSQL_DBNAME=ministra"
    ```
 
 4. Save the file
 
-**Note:** `MYSQL_PASSWORD` and `MINISTRA_MYSQL_PASS` must be identical for Ministra to connect to the database.
+**Note:** `MYSQL_PASSWORD` and `MINISTRA_MYSQL_PASS` must be identical for
+Ministra to connect to the database.
 
-### Step 3: Open Terminal
+### Step 3: Update MySQL Password in `custom.ini`
+
+The `custom.ini` file also contains the MySQL credentials that Ministra uses
+internally. Update it to match the password you set in `compose.yml`:
+
+1. Open `custom.ini` in any text editor
+2. Find the `[database]` section and change `mysql_pass` to match your
+   `MYSQL_PASSWORD` from Step 2:
+   ```ini
+   [database]
+   mysql_host = mysql
+   mysql_port = 3306
+   mysql_user = ministra
+   mysql_pass = your_secure_user_password
+   db_name = ministra
+   ```
+3. Save the file
+
+**Note:** The `mysql_pass` value here must be identical to `MYSQL_PASSWORD` and
+`MINISTRA_MYSQL_PASS` in `compose.yml`.
+
+### Step 4: Open Terminal
+
 - **Windows**: Open PowerShell or Command Prompt
 - **Mac**: Open Terminal (Applications → Utilities → Terminal)
 - **Linux**: Open your terminal application
 
-### Step 4: Navigate to the Project Folder
+### Step 5: Navigate to the Project Folder
+
 ```bash
 cd /path/to/ministra
 ```
+
 Replace `/path/to/ministra` with the actual path where you saved this project.
 
-### Step 5: Make the Init Script Executable (Linux/Mac only)
+### Step 6: Make the Init Script Executable (Linux/Mac only)
+
 ```bash
-chmod +x mysql-init/01-init.sh
+chmod +x scripts/01-init.sh
 ```
 
-### Step 6: Start All Services
+### Step 7: Start All Services
+
 ```bash
 docker compose up -d
 ```
 
 **What this does:**
+
 - Downloads the required images (first time only, may take a few minutes)
 - Creates and starts three containers: `ministra`, `mysql`, and `memcache`
 - The `-d` flag runs everything in the background
 
-### Step 7: Wait for MySQL to Initialize
-The first startup takes about 30-60 seconds while MySQL sets up the database. You can check progress with:
+### Step 8: Wait for MySQL to Initialize
+
+The first startup takes about 30-60 seconds while MySQL sets up the database.
+You can check progress with:
+
 ```bash
 docker compose logs -f mysql
 ```
+
 Press `Ctrl+C` to stop watching logs.
 
-### Step 8: Access Ministra
+### Step 9: Access Ministra
+
 Open your web browser and go to:
+
 ```
 http://localhost:8080
 ```
@@ -115,26 +151,31 @@ docker compose stop
 ```
 
 **What this does:**
+
 - Sends a shutdown signal to each container
 - Waits for them to finish what they're doing
 - Stops all containers but keeps them and their data intact
 
 To start them again later:
+
 ```bash
 docker compose start
 ```
 
 ### Alternative: Stop and Remove Containers (Keeps Data)
+
 ```bash
 docker compose down
 ```
 
 **What this does:**
+
 - Stops all containers
 - Removes the containers (but NOT your data)
 - Your database and files are safe in `mysql_data/` and `storage/`
 
 To start again after `down`:
+
 ```bash
 docker compose up -d
 ```
@@ -143,27 +184,35 @@ docker compose up -d
 
 ## 3. Recreating Containers After Making Edits
 
-If you edit configuration files (like `compose.yml`, `custom.ini`, etc.), you need to recreate the containers:
+If you edit configuration files (like `compose.yml`, `custom.ini`, etc.), you
+need to recreate the containers:
 
 ### If You Changed `compose.yml`:
+
 ```bash
 docker compose up -d
 ```
-Docker will automatically detect changes and recreate only the affected containers.
+
+Docker will automatically detect changes and recreate only the affected
+containers.
 
 ### If You Changed Other Config Files:
+
 ```bash
 docker compose restart
 ```
 
 ### Force Full Recreate (When in Doubt):
+
 ```bash
 docker compose down
 docker compose up -d
 ```
 
 ### Rebuild with Latest Image:
+
 If a new version of the Ministra image is available:
+
 ```bash
 docker compose pull
 docker compose up -d
@@ -176,33 +225,41 @@ docker compose up -d
 **WARNING: This will DELETE all your data including the database!**
 
 ### Step 1: Stop and Remove All Containers
+
 ```bash
 docker compose down
 ```
 
 ### Step 2: Delete the Database Files
+
 ```bash
 rm -rf mysql_data
 ```
 
 ### Step 3: Delete Storage Files (Optional)
+
 Only do this if you want to remove all stored content:
+
 ```bash
 rm -rf storage
 ```
 
 ### Step 4: Start Fresh
+
 ```bash
 docker compose up -d
 ```
 
 **What happens:**
+
 - New empty database is created
 - MySQL init script runs again to set up users and database
 - Everything starts as if it's a brand new installation
 
 ### Nuclear Option: Remove Everything Including Images
+
 If you want to completely clean up Docker:
+
 ```bash
 docker compose down --rmi all --volumes
 rm -rf mysql_data storage
@@ -216,30 +273,38 @@ docker compose up -d
 ### Quick Backup (Database + Storage)
 
 #### Backup Database:
+
 ```bash
 docker compose exec mysql mysqldump -u root -proot_password ministra > backup_$(date +%Y%m%d_%H%M%S).sql
 ```
+
 This creates a file like `backup_20260118_131500.sql` in your current folder.
 
 #### Backup Storage Files:
+
 ```bash
 tar -czvf storage_backup_$(date +%Y%m%d_%H%M%S).tar.gz storage/
 ```
 
 ### Restore Database from Backup:
+
 ```bash
 docker compose exec -T mysql mysql -u root -proot_password ministra < backup_20260118_131500.sql
 ```
+
 Replace `backup_20260118_131500.sql` with your actual backup filename.
 
 ### Restore Storage Files:
+
 ```bash
 rm -rf storage
 tar -xzvf storage_backup_20260118_131500.tar.gz
 ```
 
 ### Full Backup Script
+
 Create a file called `backup.sh`:
+
 ```bash
 #!/bin/bash
 BACKUP_DIR="./backups"
@@ -257,6 +322,7 @@ echo "Backup complete! Files saved to $BACKUP_DIR/"
 ```
 
 Make it executable and run:
+
 ```bash
 chmod +x backup.sh
 ./backup.sh
@@ -267,11 +333,13 @@ chmod +x backup.sh
 ## Troubleshooting
 
 ### Check if Containers are Running:
+
 ```bash
 docker compose ps
 ```
 
 ### View Container Logs:
+
 ```bash
 # All containers
 docker compose logs
@@ -285,17 +353,21 @@ docker compose logs -f
 ```
 
 ### Container Won't Start:
+
 1. Check logs: `docker compose logs`
 2. Try recreating: `docker compose down && docker compose up -d`
 3. Check if ports are in use: `sudo lsof -i :8080` or `sudo lsof -i :3306`
 
 ### Database Connection Issues:
+
 Wait 30-60 seconds after first start. Check MySQL logs:
+
 ```bash
 docker compose logs mysql
 ```
 
 ### Reset Everything:
+
 ```bash
 docker compose down
 rm -rf mysql_data
@@ -306,32 +378,36 @@ docker compose up -d
 
 ## Quick Reference
 
-| Action | Command |
-|--------|---------|
-| Start services | `docker compose up -d` |
-| Stop services | `docker compose stop` |
-| Stop and remove containers | `docker compose down` |
-| View running containers | `docker compose ps` |
-| View logs | `docker compose logs` |
-| Restart services | `docker compose restart` |
-| Backup database | `docker compose exec mysql mysqldump -u root -proot_password ministra > backup.sql` |
+| Action                     | Command                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| Start services             | `docker compose up -d`                                                              |
+| Stop services              | `docker compose stop`                                                               |
+| Stop and remove containers | `docker compose down`                                                               |
+| View running containers    | `docker compose ps`                                                                 |
+| View logs                  | `docker compose logs`                                                               |
+| Restart services           | `docker compose restart`                                                            |
+| Backup database            | `docker compose exec mysql mysqldump -u root -proot_password ministra > backup.sql` |
 
 ---
 
 ## Configuration
 
 ### MySQL Credentials
+
 Defined in `compose.yml`:
+
 - **Root Password**: `root_password`
 - **Database**: `ministra`
 - **User**: `ministra`
 - **Password**: `ministra_user_password`
 
 ### Ports
+
 - **Ministra Web Interface**: `http://localhost:8080`
 - **MySQL**: `3306` (internal only)
 
 ### Important Files
+
 - `compose.yml` - Main Docker configuration
 - `custom.ini` - Ministra settings
 - `mysql.conf.d/` - MySQL configuration

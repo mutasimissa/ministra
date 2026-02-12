@@ -9,6 +9,8 @@ services:
       - ./known_hosts:/root/.ssh/known_hosts
       - ./custom.ini:/home/ministra/ministra/www/stalker_portal/server/custom.ini
       - ./pixelna:/home/ministra/ministra/www/pixelna
+      - ./scripts/init-ministra.sh:/opt/init-ministra.sh
+    entrypoint: ["/bin/bash", "/opt/init-ministra.sh"]
     depends_on:
       - mysql
       - memcache
@@ -26,7 +28,7 @@ services:
     volumes:
       - ./mysql_data:/var/lib/mysql
       - ./mysql.conf.d:/etc/mysql/mysql.conf.d
-      - ./mysql-init:/docker-entrypoint-initdb.d
+      - ./scripts:/docker-entrypoint-initdb.d
     environment:
       - MYSQL_ROOT_PASSWORD=root_password
       - MYSQL_DATABASE=ministra
