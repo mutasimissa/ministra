@@ -65,7 +65,7 @@ set_admin_credentials() {
     );
     \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     \$hash = md5('${MINISTRA_ADMIN_PASSWORD}');
-    \$stmt = \$pdo->prepare('UPDATE administrators SET login = ?, password = ? WHERE login = \"admin\" OR id = 1');
+    \$stmt = \$pdo->prepare('UPDATE administrators SET login = ?, pass = ? WHERE login = \"admin\" OR id = 1');
     \$stmt->execute(['${MINISTRA_ADMIN_USER}', \$hash]);
     echo \"Admin credentials updated.\n\";
   "
